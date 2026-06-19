@@ -1,5 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ' https://blueprint-ai-t7b1.onrender.com'
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://blueprint-ai-t7b1.onrender.com'
 /**
  * Thin wrapper around the backend's two endpoints. The frontend never
  * holds an API key or talks to Groq directly — everything routes through
