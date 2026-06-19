@@ -5,10 +5,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes import generate_roadmap, edit_roadmap
 from app.middleware.rate_limiter import limiter, rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+import logging
+
+# Set up logging to capture the Pydantic validation details
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# 1. CORS Setup (Crucial for frontend communication)
+# 1. CORS Setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,8 +27,9 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """Logs the exact validation error to Render logs."""
-    print(f"VALIDATION ERROR: {exc.errors()}")
+    """Logs the exact validation error to Render logs so we can debug the 400."""
+    logger.error(f"VALIDATION ERROR DETECTED: {exc.errors()}")
+    logger.error(f"REQUEST BODY: {await request.body()}")
     return JSONResponse(
         status_code=400,
         content={"detail": exc.errors()},
