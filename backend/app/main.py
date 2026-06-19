@@ -1,44 +1,38 @@
-import os
-from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi.errors import RateLimitExceeded
-from app.middleware.rate_limiter import limiter, rate_limit_exceeded_handler
 from app.routes import generate_roadmap, edit_roadmap
+from app.middleware.rate_limiter import limiter, rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
-# Load environment variables
-load_dotenv()
+app = FastAPI()
 
-app = FastAPI(title="AI Roadmap Generator API")
-
-# Add CORS Middleware
+# 1. CORS Setup (Crucial for frontend communication)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Global Exception Handler for Request Validation Errors
+# 2. Add Exception Handlers
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    print(f"VALIDATION ERROR: {exc.errors()}")  # This will print the specific error to your Render logs
+    """Logs the exact validation error to Render logs."""
+    print(f"VALIDATION ERROR: {exc.errors()}")
     return JSONResponse(
         status_code=400,
         content={"detail": exc.errors()},
     )
 
-# Initialize the rate limiter
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
-
-# Include the roadmap routers
+# 3. Include Routers
 app.include_router(generate_roadmap.router, prefix="/api")
 app.include_router(edit_roadmap.router, prefix="/api")
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the AI Roadmap Generator API. Access the API documentation at /docs"}
