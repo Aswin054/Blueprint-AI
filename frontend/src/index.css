@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  ::selection {
+    background-color: theme('colors.ink');
+    color: theme('colors.paper');
+  }
+
+  body {
+    font-feature-settings: "tnum";
+  }
+}
+
+@layer utilities {
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    outline: 2px solid theme('colors.ink');
+    outline-offset: 2px;
+  }
+}
+
+/* Checkbox: drawn by hand, not the browser default — fits the ink/paper system */
+.task-checkbox {
+  appearance: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  min-width: 1.15rem;
+  border: 1.5px solid theme('colors.ink');
+  cursor: pointer;
+  position: relative;
+  margin-top: 0.2rem;
+}
+
+.task-checkbox:checked {
+  background-color: theme('colors.ink');
+}
+
+.task-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  width: 5px;
+  height: 9px;
+  border: solid theme('colors.paper');
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Thin animated rule used as a loading/progress signature */
+@keyframes grow-line {
+  from { width: 0%; }
+}
+.animate-grow {
+  animation: grow-line 0.6s ease-out forwards;
+}
