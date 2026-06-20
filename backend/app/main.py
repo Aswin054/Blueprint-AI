@@ -19,7 +19,10 @@ app = FastAPI()
 # CORS settings to allow local frontend development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://blueprint-ai-t7b1.onrender.com"],
+    allow_origins=[ "http://localhost:5173",
+        "https://blueprint-ai-t7b1.onrender.com",
+        "https://aswindsblueprint.vercel.app",
+        ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
